@@ -16,7 +16,7 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     private Handler handler = new Handler();
-    private Boolean game_already_started,compteur_1,compteur_2,distance;
+    private Boolean game_already_started,compteur,distance;
     private TextView score_text;
     private int gravity = 2;
     private int score,screenWidth,screenHeight,velocity,flappyY,milieu_screen,milieu_screen_h;
@@ -62,8 +62,12 @@ public class MainActivity extends AppCompatActivity {
         Runnable back_stuff = new Runnable() {
             @Override
             public void run(){
-                cara_1();
-                cara_2();
+                flappyY +=velocity;
+                velocity+= gravity;
+                flappy.setY(flappyY);
+                cara_collision(cara_top_1,cara_bottom_1);
+                cara_collision(cara_top_2,cara_bottom_2);
+                avancer_cara();
                 handler.postDelayed(this,25);
             }
         };
@@ -83,8 +87,7 @@ public class MainActivity extends AppCompatActivity {
     private void start_game(){
 
         distance = false;
-        compteur_1 = false;
-        compteur_2 = false;
+        compteur = false;
 
         flappyY = milieu_screen_h;
         flappy.setY(milieu_screen_h);
@@ -93,64 +96,34 @@ public class MainActivity extends AppCompatActivity {
         initialisation_cara(cara_top_2,cara_bottom_2);
     }
 
-    private void cara_1() {
+    private void cara_collision(ImageView cara_top,ImageView cara_bottom) {
 
-        flappyY +=velocity;
-        velocity+= gravity;
-        flappy.setY(flappyY);
-
-        if (flappyY > screenHeight - flappy.getHeight()) {
-            endgame();
-        }
-        if (flappyY < 0) {
-            endgame();
-        }
-        if (flappy.getX() < cara_top_1.getX() + cara_top_1.getWidth() &&
-                flappy.getX() + flappy.getWidth() > cara_top_1.getX() &&
-                (flappy.getY() < cara_top_1.getHeight() || flappy.getY() + flappy.getHeight() > cara_bottom_1.getY())) {
+        if (flappy.getX() < cara_top.getX() + cara_top.getWidth() &&
+                flappy.getX() + flappy.getWidth() > cara_top.getX() &&
+                (flappy.getY() < cara_top.getHeight() || flappy.getY() + flappy.getHeight() > cara_bottom.getY())) {
             endgame();
         }
         // hors de zone de point reinitialise la valeur de compteur sur false
         if (flappy.getX()<cara_top_1.getX() || flappy.getX()>cara_top_1.getX() + cara_top_1.getWidth()){
-            compteur_1 = false;
+            if (flappy.getX()<cara_top_2.getX() || flappy.getX()>cara_top_2.getX() + cara_top_2.getWidth()){
+                compteur = false;
+            }
         }
+
         // zone de point on ajoute un point et ensuite on definie compteur false pour plus attribué de point
-        if (flappy.getX()>cara_top_1.getX() && flappy.getX()<cara_top_1.getX() + cara_top_1.getWidth()){
-            if (!compteur_1) {
+        if (flappy.getX()>cara_top.getX() && flappy.getX()<cara_top.getX() + cara_top.getWidth()){
+            if (!compteur) {
                 score+=1;
                 score_text.setText("score : "+ score);
 
             }
-            compteur_1 = true;
+            compteur = true;
         }
-        cara_top_1.setX(cara_top_1.getX() - 6);
-        cara_bottom_1.setX(cara_top_1.getX());
-
-        if (cara_top_1.getX()+ 2*cara_top_1.getWidth()-100<0){
-            initialisation_cara(cara_top_1,cara_bottom_1);
+        if (cara_top.getX()+ 2*cara_top.getWidth()-100<0){
+            initialisation_cara(cara_top,cara_bottom);
         }
     }
-    private void cara_2() {
-
-        if (flappy.getX() < cara_top_2.getX() + cara_top_2.getWidth() &&
-                flappy.getX() + flappy.getWidth() > cara_top_2.getX() &&
-                (flappy.getY() < cara_top_2.getHeight() || flappy.getY() + flappy.getHeight() > cara_bottom_2.getY())) {
-            endgame();
-        }
-        // hors de zone de point reinitialise la valeur de compteur sur false
-        if (flappy.getX()<cara_top_2.getX() || flappy.getX()>cara_top_2.getX() + cara_top_2.getWidth()){
-            compteur_2 = false;
-        }
-        // zone de point on ajoute un point et ensuite on definie compteur false pour plus attribué de point
-        if (flappy.getX()>cara_top_2.getX() && flappy.getX()<cara_top_2.getX() + cara_top_2.getWidth()){
-            if (!compteur_2) {
-                score+=1;
-                score_text.setText("score : "+ score);
-
-            }
-            compteur_2 = true;
-        }
-
+    private void avancer_cara(){
         if (milieu_screen-cara_bottom_1.getWidth()+100>cara_bottom_1.getX()) {
             distance = true;
         }
@@ -158,10 +131,8 @@ public class MainActivity extends AppCompatActivity {
             cara_top_2.setX(cara_top_2.getX() - 6);
             cara_bottom_2.setX(cara_top_2.getX());
         }
-
-        if (cara_top_2.getX()+ 2*cara_top_2.getWidth()-100<0){
-            initialisation_cara(cara_top_2,cara_bottom_2);
-        }
+        cara_top_1.setX(cara_top_1.getX() - 6);
+        cara_bottom_1.setX(cara_top_1.getX());
     }
     private void endgame(){
         start_game();
